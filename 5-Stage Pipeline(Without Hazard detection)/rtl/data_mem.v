@@ -1,0 +1,172 @@
+module data_mem #(parameter WIDTH=32, MEM_SIZE=32) (
+    input  clk, reset, 
+    input  mem_write,
+    input  [WIDTH-1:0]wr_data,
+    input  [WIDTH-1:0]wr_addr,
+    input  [2:0]funct3,
+    output reg [WIDTH-1:0]read_data
+);
+
+reg [WIDTH-1:0]data_ram[0:MEM_SIZE-1];
+
+localparam word_addr_bits = $clog2(WIDTH/8);
+
+wire [WIDTH-1:0]word_addr = wr_addr[WIDTH-1:word_addr_bits] % MEM_SIZE;
+
+integer i;
+
+always @(posedge clk or negedge reset) begin
+    if(!reset) begin
+        for(i=0; i<MEM_SIZE; i=i+1) data_ram[i] = 0;
+    end
+    else begin
+        if(mem_write) begin
+            if(WIDTH==32) begin
+                case(funct3)
+                    3'b000 : begin  //sb
+                        case(word_addr[1:0])
+                            2'b00 : data_ram[word_addr][7:0]   = wr_data[7:0];
+                            2'b01 : data_ram[word_addr][15:8]  = wr_data[7:0];
+                            2'b10 : data_ram[word_addr][23:16] = wr_data[7:0];
+                            2'b11 : data_ram[word_addr][31:24] = wr_data[7:0];
+                        endcase
+                    end
+                    3'b001 : begin  //sh
+                        case(word_addr[1])
+                            1'b0 : data_ram[word_addr][15:0]  = wr_data[15:0];
+                            1'b1 : data_ram[word_addr][31:16] = wr_data[15:0];
+                         endcase
+                    end
+                    3'b010 : data_ram[word_addr] = wr_data;  //sw
+                endcase
+            end
+            else if(WIDTH==64) begin
+                case(funct3)
+                    3'b000 : begin  //sb
+                        case(word_addr[2:0])
+                            3'b000 : data_ram[word_addr][7:0]    =  wr_data[7:0];
+                            3'b001 : data_ram[word_addr][15:8]   =  wr_data[7:0];
+                            3'b010 : data_ram[word_addr][23:16]  =  wr_data[7:0];
+                            3'b011 : data_ram[word_addr][31:24]  =  wr_data[7:0];
+                            3'b100 : data_ram[word_addr][39:32]  =  wr_data[7:0];
+                            3'b101 : data_ram[word_addr][47:40]  =  wr_data[7:0];
+                            3'b110 : data_ram[word_addr][55:48]  =  wr_data[7:0];
+                            3'b111 : data_ram[word_addr][63:56]  =  wr_data[7:0];
+                        endcase
+                    end
+                    3'b001 : begin  //sh
+                        case(word_addr[2:1])
+                            2'b00 : data_ram[word_addr][15:0]   =  wr_data[15:0];
+                            2'b01 : data_ram[word_addr][31:16]  =  wr_data[15:0];
+                            2'b10 : data_ram[word_addr][47:32]  =  wr_data[15:0];
+                            2'b11 : data_ram[word_addr][63:48]  =  wr_data[15:0];
+                        endcase
+                    end
+                    3'b010 : begin  //sw
+                        case(word_addr[2])
+                            1'b0 : data_ram[word_addr][31:0]  = wr_data[31:0];
+                            1'b1 : data_ram[word_addr][63:32] = wr_data[63:32];
+                        endcase
+                    end
+                    3'b011 : data_ram[word_addr] = wr_data;  //sd
+                endcase
+            end
+        end
+    end
+end
+
+always @(*) begin
+    if(WIDTH==32) begin
+        case(funct3)
+            3'b000 : begin  //lb
+                case(word_addr[1:0])
+                    2'b00 : read_data = {{24{data_ram[word_addr][7]}} , data_ram[word_addr][7:0]};
+                    2'b01 : read_data = {{24{data_ram[word_addr][15]}}, data_ram[word_addr][15:8]};
+                    2'b10 : read_data = {{24{data_ram[word_addr][23]}}, data_ram[word_addr][23:16]};
+                    2'b11 : read_data = {{24{data_ram[word_addr][31]}}, data_ram[word_addr][31:24]};
+                endcase
+            end
+            3'b001 : begin  //lh
+                case(word_addr[1])
+                    1'b0 : read_data = {{16{data_ram[word_addr][15]}} , data_ram[word_addr][15:0]};
+                    1'b1 : read_data = {{16{data_ram[word_addr][31]}} , data_ram[word_addr][31:16]};
+                endcase
+            end
+            3'b010 : read_data = data_ram[word_addr];  //lw
+            3'b100 : begin  //lbu
+                case(word_addr[1:0])
+                    2'b00 : read_data = {{24{1'b0}} , data_ram[word_addr][7:0]};
+                    2'b01 : read_data = {{24{1'b0}} , data_ram[word_addr][15:8]};
+                    2'b10 : read_data = {{24{1'b0}} , data_ram[word_addr][23:16]};
+                    2'b11 : read_data = {{24{1'b0}} , data_ram[word_addr][31:24]};
+                endcase
+            end
+            3'b101 : begin  //lhu
+                case(word_addr[1])
+                    1'b0 : read_data = {{16{1'b0}} , data_ram[word_addr][15:0]};
+                    1'b1 : read_data = {{16{1'b0}} , data_ram[word_addr][31:16]};
+                endcase
+            end
+        endcase
+    end
+    else if(WIDTH==64) begin
+        case(funct3)
+            3'b000 : begin  //lw
+                case(word_addr[2:0])
+                    3'b000 : read_data = {{56{data_ram[word_addr][7]}} , data_ram[word_addr][7:0]};
+                    3'b001 : read_data = {{56{data_ram[word_addr][15]}}, data_ram[word_addr][15:8]};
+                    3'b010 : read_data = {{56{data_ram[word_addr][23]}}, data_ram[word_addr][23:16]};
+                    3'b011 : read_data = {{56{data_ram[word_addr][31]}}, data_ram[word_addr][31:24]};
+                    3'b100 : read_data = {{56{data_ram[word_addr][39]}}, data_ram[word_addr][39:32]};
+                    3'b101 : read_data = {{56{data_ram[word_addr][47]}}, data_ram[word_addr][47:40]};
+                    3'b110 : read_data = {{56{data_ram[word_addr][55]}}, data_ram[word_addr][55:48]};
+                    3'b111 : read_data = {{56{data_ram[word_addr][63]}}, data_ram[word_addr][63:56]};
+                endcase
+            end
+            3'b001 : begin  //lh
+                case(word_addr[2:1])
+                    2'b00 : read_data = {{48{data_ram[word_addr][15]}} , data_ram[word_addr][15:0]};
+                    2'b01 : read_data = {{48{data_ram[word_addr][31]}} , data_ram[word_addr][31:16]};
+                    2'b10 : read_data = {{48{data_ram[word_addr][47]}} , data_ram[word_addr][47:32]};
+                    2'b11 : read_data = {{48{data_ram[word_addr][63]}} , data_ram[word_addr][63:48]};
+                endcase
+            end
+            3'b010 : begin //lw
+                case(word_addr[2])
+                    1'b0 : read_data = {{32{data_ram[word_addr][31]}} , data_ram[word_addr][31:0]};
+                    1'b1 : read_data = {{32{data_ram[word_addr][63]}} , data_ram[word_addr][63:32]}; 
+                endcase
+            end
+            3'b011 : read_data = data_ram[word_addr];   //ld
+            3'b100 : begin  //lwu
+                case(word_addr[2:0])
+                    3'b000 : read_data = {{56{1'b0}} , data_ram[word_addr][7:0]};
+                    3'b001 : read_data = {{56{1'b0}}, data_ram[word_addr][15:8]};
+                    3'b010 : read_data = {{56{1'b0}}, data_ram[word_addr][23:16]};
+                    3'b011 : read_data = {{56{1'b0}}, data_ram[word_addr][31:24]};
+                    3'b100 : read_data = {{56{1'b0}}, data_ram[word_addr][39:32]};
+                    3'b101 : read_data = {{56{1'b0}}, data_ram[word_addr][47:40]};
+                    3'b110 : read_data = {{56{1'b0}}, data_ram[word_addr][55:48]};
+                    3'b111 : read_data = {{56{1'b0}}, data_ram[word_addr][63:56]};
+                endcase
+            end
+            3'b101 : begin  //lhu
+                case(word_addr[2:1])
+                    2'b00 : read_data = {{48{1'b0}} , data_ram[word_addr][15:0]};
+                    2'b01 : read_data = {{48{1'b0}} , data_ram[word_addr][31:16]};
+                    2'b10 : read_data = {{48{1'b0}} , data_ram[word_addr][47:32]};
+                    2'b11 : read_data = {{48{1'b0}} , data_ram[word_addr][63:48]};
+                endcase
+            end
+            3'b110 : begin //lwu
+                case(word_addr[2])
+                    1'b0 : read_data = {{32{1'b0}} , data_ram[word_addr][31:0]};
+                    1'b1 : read_data = {{32{1'b0}} , data_ram[word_addr][63:32]}; 
+                endcase
+            end
+        endcase
+    end
+
+end
+
+endmodule

@@ -1,0 +1,23 @@
+localparam NORMAL    = 0;
+localparam SUBNORMAL = NORMAL + 1;
+localparam ZERO      = SUBNORMAL + 1;
+localparam INFINITY  = ZERO + 1;
+localparam QNAN      = INFINITY + 1;
+localparam SNAN      = QNAN + 1;
+localparam NTYPES    = SNAN + 1;
+localparam BIAS = ((1 << (NEXP - 1)) - 1);
+localparam EMAX = BIAS;
+localparam EMIN = (1 - EMAX);
+localparam roundTiesToEven     = 0;
+localparam roundTowardZero     = 1;
+localparam roundTowardPositive = 2;
+localparam roundTowardNegative = 3;
+localparam roundTiesToAway     = 4;
+localparam NRAS                = roundTiesToAway+1;
+
+localparam INVALID             = 0;
+localparam DIVIDEBYZERO        = 1;
+localparam OVERFLOW            = 2;
+localparam UNDERFLOW           = 3;
+localparam INEXACT             = 4;
+localparam NEXCEPTIONS     = INEXACT+1;

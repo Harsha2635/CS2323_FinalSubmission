@@ -1,0 +1,8 @@
+0000000000000000 <_start>:
+   0: 00500093             addi x1, x0, 5
+   4: 00700113             addi x2, x0, 7
+   8: 004001ef             jal x3, 4 <add_numbers>
+
+000000000000000c <add_numbers>:
+   c: 002080b3             add x1, x1, x2
+  10: 00018267             jalr x4, x3, 0
