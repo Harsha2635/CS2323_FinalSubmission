@@ -83,7 +83,7 @@ always @(*) begin
     if(WIDTH==32) begin
         case(funct3)
             3'b000 : begin  //lb
-                case(word_addr[1:0])
+                case(wr_addr[1:0])
                     2'b00 : read_data <= {{24{data_ram[word_addr][7]}} , data_ram[word_addr][7:0]};
                     2'b01 : read_data <= {{24{data_ram[word_addr][15]}}, data_ram[word_addr][15:8]};
                     2'b10 : read_data <= {{24{data_ram[word_addr][23]}}, data_ram[word_addr][23:16]};
@@ -91,14 +91,14 @@ always @(*) begin
                 endcase
             end
             3'b001 : begin  //lh
-                case(word_addr[1])
+                case(wr_addr[1])
                     1'b0 : read_data <= {{16{data_ram[word_addr][15]}} , data_ram[word_addr][15:0]};
                     1'b1 : read_data <= {{16{data_ram[word_addr][31]}} , data_ram[word_addr][31:16]};
                 endcase
             end
             3'b010 : read_data = data_ram[word_addr];  //lw
             3'b100 : begin  //lbu
-                case(word_addr[1:0])
+                case(wr_addr[1:0])
                     2'b00 : read_data <= {{24{1'b0}} , data_ram[word_addr][7:0]};
                     2'b01 : read_data <= {{24{1'b0}} , data_ram[word_addr][15:8]};
                     2'b10 : read_data <= {{24{1'b0}} , data_ram[word_addr][23:16]};
@@ -106,7 +106,7 @@ always @(*) begin
                 endcase
             end
             3'b101 : begin  //lhu
-                case(word_addr[1])
+                case(wr_addr[1])
                     1'b0 : read_data <= {{16{1'b0}} , data_ram[word_addr][15:0]};
                     1'b1 : read_data <= {{16{1'b0}} , data_ram[word_addr][31:16]};
                 endcase
@@ -116,7 +116,7 @@ always @(*) begin
     else if(WIDTH==64) begin
         case(funct3)
             3'b000 : begin  //lw
-                case(word_addr[2:0])
+                case(wr_addr[2:0])
                     3'b000 : read_data <= {{56{data_ram[word_addr][7]}} , data_ram[word_addr][7:0]};
                     3'b001 : read_data <= {{56{data_ram[word_addr][15]}}, data_ram[word_addr][15:8]};
                     3'b010 : read_data <= {{56{data_ram[word_addr][23]}}, data_ram[word_addr][23:16]};
@@ -128,7 +128,7 @@ always @(*) begin
                 endcase
             end
             3'b001 : begin  //lh
-                case(word_addr[2:1])
+                case(wr_addr[2:1])
                     2'b00 : read_data <= {{48{data_ram[word_addr][15]}} , data_ram[word_addr][15:0]};
                     2'b01 : read_data <= {{48{data_ram[word_addr][31]}} , data_ram[word_addr][31:16]};
                     2'b10 : read_data <= {{48{data_ram[word_addr][47]}} , data_ram[word_addr][47:32]};
@@ -136,14 +136,14 @@ always @(*) begin
                 endcase
             end
             3'b010 : begin //lw
-                case(word_addr[2])
+                case(wr_addr[2])
                     1'b0 : read_data <= {{32{data_ram[word_addr][31]}} , data_ram[word_addr][31:0]};
                     1'b1 : read_data <= {{32{data_ram[word_addr][63]}} , data_ram[word_addr][63:32]}; 
                 endcase
             end
             3'b011 : read_data = data_ram[word_addr];   //ld
             3'b100 : begin  //lwu
-                case(word_addr[2:0])
+                case(wr_addr[2:0])
                     3'b000 : read_data <= {{56{1'b0}} , data_ram[word_addr][7:0]};
                     3'b001 : read_data <= {{56{1'b0}}, data_ram[word_addr][15:8]};
                     3'b010 : read_data <= {{56{1'b0}}, data_ram[word_addr][23:16]};
@@ -155,7 +155,7 @@ always @(*) begin
                 endcase
             end
             3'b101 : begin  //lhu
-                case(word_addr[2:1])
+                case(wr_addr[2:1])
                     2'b00 : read_data <= {{48{1'b0}} , data_ram[word_addr][15:0]};
                     2'b01 : read_data <= {{48{1'b0}} , data_ram[word_addr][31:16]};
                     2'b10 : read_data <= {{48{1'b0}} , data_ram[word_addr][47:32]};
@@ -163,7 +163,7 @@ always @(*) begin
                 endcase
             end
             3'b110 : begin //lwu
-                case(word_addr[2])
+                case(wr_addr[2])
                     1'b0 : read_data <= {{32{1'b0}} , data_ram[word_addr][31:0]};
                     1'b1 : read_data <= {{32{1'b0}} , data_ram[word_addr][63:32]}; 
                 endcase
