@@ -28,7 +28,7 @@ always @(posedge clk or negedge reset) begin
             if(WIDTH==32) begin
                 case(funct3)
                     3'b000 : begin  //sb
-                        case(word_addr[1:0])
+                        case(wr_addr[1:0])
                             2'b00 : data_ram[word_addr][7:0]   <= wr_data[7:0];
                             2'b01 : data_ram[word_addr][15:8]  <= wr_data[7:0];
                             2'b10 : data_ram[word_addr][23:16] <= wr_data[7:0];
@@ -36,7 +36,7 @@ always @(posedge clk or negedge reset) begin
                         endcase
                     end
                     3'b001 : begin  //sh
-                        case(word_addr[1])
+                        case(wr_addr[1])
                             1'b0 : data_ram[word_addr][15:0]  <= wr_data[15:0];
                             1'b1 : data_ram[word_addr][31:16] <= wr_data[15:0];
                          endcase
@@ -47,7 +47,7 @@ always @(posedge clk or negedge reset) begin
             else if(WIDTH==64) begin
                 case(funct3)
                     3'b000 : begin  //sb
-                        case(word_addr[2:0])
+                        case(wr_addr[2:0])
                             3'b000 : data_ram[word_addr][7:0]    <=  wr_data[7:0];
                             3'b001 : data_ram[word_addr][15:8]   <=  wr_data[7:0];
                             3'b010 : data_ram[word_addr][23:16]  <=  wr_data[7:0];
@@ -59,7 +59,7 @@ always @(posedge clk or negedge reset) begin
                         endcase
                     end
                     3'b001 : begin  //sh
-                        case(word_addr[2:1])
+                        case(wr_addr[2:1])
                             2'b00 : data_ram[word_addr][15:0]   <=  wr_data[15:0];
                             2'b01 : data_ram[word_addr][31:16]  <=  wr_data[15:0];
                             2'b10 : data_ram[word_addr][47:32]  <=  wr_data[15:0];
@@ -67,7 +67,7 @@ always @(posedge clk or negedge reset) begin
                         endcase
                     end
                     3'b010 : begin  //sw
-                        case(word_addr[2])
+                        case(wr_addr[2])
                             1'b0 : data_ram[word_addr][31:0]  <= wr_data[31:0];
                             1'b1 : data_ram[word_addr][63:32] <= wr_data[63:32];
                         endcase
